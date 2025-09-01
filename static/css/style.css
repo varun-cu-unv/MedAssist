@@ -1,0 +1,397 @@
+:root {
+    --primary-color: #3B38A0;
+    --primary-dark: #2D2A75;
+    --secondary-color: #4ECDC4;
+    --text-dark: #2D2A75;
+    --bg-dark-start: #3B38A0;
+    --bg-dark-end: #2D2A75;
+    --bg-light-start: #EDE9F5;
+    --bg-light-end: #D6D1F0;
+    --container-bg-dark: rgba(255, 255, 255, 0.95);
+    --container-bg-light: rgba(255, 255, 255, 0.9);
+    --shadow-dark: rgba(0, 0, 0, 0.2);
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --border-color: rgba(255, 255, 255, 0.3);
+    --text-light: white;
+}
+
+/* General & Theme-related Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--bg-dark-start), var(--bg-dark-end));
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    transition: background-color 0.3s ease;
+}
+
+body.light-mode {
+    background: linear-gradient(135deg, var(--bg-light-start), var(--bg-light-end));
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Main Layout */
+.main-container {
+    display: flex;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+/* Left Section - Branding and Description */
+.left-section {
+    flex: 1;
+    max-width: 600px;
+    color: var(--text-light);
+    padding: 40px;
+}
+
+body.light-mode .left-section {
+    color: var(--primary-dark);
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.main-logo-icon {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.main-logo-icon::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-image: url('../Medassist_Image.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: block;
+}
+
+.main-tagline {
+    font-size: 1.8rem;
+    min-height: 60px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 2s forwards;
+}
+
+.description {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.description p,
+.description li {
+    margin-bottom: 15px;
+    min-height: 24px;
+}
+
+/* Right Section - Forms */
+.right-section {
+    flex: 0 0 400px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.container {
+    background: var(--container-bg-dark);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px var(--shadow-dark);
+    width: 100%;
+    max-width: 400px;
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+body.light-mode .container {
+    background: var(--container-bg-light);
+    box-shadow: 0 20px 40px var(--shadow-light);
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-icon {
+    width: 100px;
+    height: 100px;
+    display: inline-block;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.logo-icon::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-image: url('../Medassist_Image.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: block;
+}
+
+.logo h2 {
+    color: var(--primary-color);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+body.light-mode .logo h2 {
+    color: var(--primary-dark);
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 30px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+body.light-mode .tabs {
+    background: #e9ecef;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px 20px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.tab.active {
+    background: var(--primary-color);
+    color: var(--text-light);
+    box-shadow: 0 2px 10px rgba(59, 56, 160, 0.3);
+}
+
+body.light-mode .tab.active {
+    background: var(--primary-dark);
+}
+
+.form {
+    display: none;
+    animation: slideIn 0.3s ease forwards;
+}
+
+.form.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 56, 160, 0.1);
+    transform: translateY(-2px);
+}
+
+body.light-mode .form-group input:focus {
+    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 3px rgba(45, 42, 117, 0.1);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-light);
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59, 56, 160, 0.3);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Message Styles */
+.error-message, .success-message {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+    font-weight: 500;
+    text-align: center;
+}
+
+.error-message {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #d32f2f;
+}
+
+.success-message {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    color: #2e7d32;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Blinking cursor styles */
+.typing-cursor {
+    border-right: 3px solid white;
+    animation: blink-caret 0.75s step-end infinite;
+}
+
+body.light-mode .typing-cursor {
+    border-right-color: var(--primary-dark);
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: white }
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .main-container {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .left-section {
+        text-align: center;
+        padding-top: 80px;
+    }
+    .brand-section {
+        justify-content: center;
+    }
+    .right-section {
+        flex: 1;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+    
+    .brand-section {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .main-logo-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .main-tagline {
+        font-size: 1.5rem;
+    }
+    
+    .description {
+        font-size: 1rem;
+    }
+}
+
+/* Focus styles for accessibility */
+.theme-toggle:focus,
+.submit-btn:focus,
+.tab:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+body.light-mode .theme-toggle:focus,
+body.light-mode .submit-btn:focus,
+body.light-mode .tab:focus {
+    outline-color: var(--primary-dark);
+}

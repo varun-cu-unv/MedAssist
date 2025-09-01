@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAssist Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="brand-section">
+                <div class="logo-icon"></div>
+                <h1>MedAssist Dashboard</h1>
+            </div>
+            <p class="welcome">Welcome back, {{ username }}!</p>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" onclick="toggleVoiceCommand()">
+                    🎤 Voice Command
+                </button>
+                <button class="action-btn" onclick="openHealthRecords()">
+                📋 Health Records
+                </button>
+                <button class="action-btn" onclick="toggleMultilingual()">
+                    🌐 Multilingual Support
+                </button>
+                <button class="action-btn" onclick="openAboutUs()">
+                    ℹ️ About Us
+                </button>
+                <button class="action-btn logout-style" onclick="confirmLogout()">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Chatbot Area -->
+            <div class="chatbot-container">
+                <div class="chatbot-header">
+                    <h3>AI Health Assistant</h3>
+                    <button class="chatbot-toggle" onclick="toggleChatbot()">
+                        <span id="chatToggleIcon">➖</span>
+                    </button>
+                </div>
+                
+                <div class="chatbot-content" id="chatbotContent">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="bot-message">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <p>Hello! I'm your AI health assistant. How can I help you today?</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" placeholder="Ask me anything about your health..." />
+                        <button id="sendBtn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar - Chat History -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Chat History</h3>
+                    <button class="new-chat-btn" onclick="startNewChat()" title="Start New Chat">
+                        ➕
+                    </button>
+                </div>
+                
+                <div class="sidebar-content">
+                    <div class="chat-sessions" id="chatSessions">
+                        <!-- Chat sessions will be dynamically added here -->
+                    </div>
+                    
+                    <div class="sidebar-actions">
+                        <button class="sidebar-action-btn" onclick="clearAllChats()">
+                            🗑️ Clear All Chats
+                        </button>
+                        <button class="sidebar-action-btn" onclick="exportChatHistory()">
+                            💾 Export History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden form for logout -->
+    <form id="logoutForm" action="/logout" method="POST" style="display: none;"></form>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

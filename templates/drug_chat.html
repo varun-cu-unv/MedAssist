@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Information Chat - MedAssist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ehr.css') }}">
+    <style>
+        .chat-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .chat-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 20px;
+        }
+        
+        .language-selector {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .language-selector select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .language-selector select:focus {
+            outline: none;
+            border-color: #4ECDC4;
+        }
+        
+        .language-selector label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .chat-header h1 {
+            color: #3B38A0;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .chat-header p {
+            color: #666;
+            margin: 10px 0 0 0;
+        }
+        
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease-in;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        
+        .message.bot .message-content {
+            background: linear-gradient(135deg, #3B38A0, #4ECDC4);
+            color: white;
+        }
+        
+        .message.user .message-content {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .message.bot .message-avatar {
+            background: #4ECDC4;
+            color: white;
+        }
+        
+        .message.user .message-avatar {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+        }
+        
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 12px 50px 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .chat-input:focus {
+            border-color: #4ECDC4;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+        
+        .mic-button {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mic-button:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .mic-button.listening {
+            color: #ff4444;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #3B38A0, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.3s;
+            min-width: 70px;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 56, 160, 0.3);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .voice-status {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .voice-status.show {
+            opacity: 1;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .typing-dots {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 10px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ECDC4;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        .drug-info-card {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+        
+        .drug-info-card h4 {
+            color: #3B38A0;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .drug-info-item {
+            margin: 12px 0;
+            line-height: 1.5;
+        }
+        
+        .drug-info-label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .drug-info-value {
+            color: #333;
+        }
+        
+        .error-message {
+            background: #ffe6e6;
+            color: #d32f2f;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d2e;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #4caf50;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .chat-messages {
+                height: 350px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .chat-input {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>MedAssist</span>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/health-records" class="nav-link">Health Records</a>
+                <a href="/medical-records" class="nav-link">Medical Records</a>
+                <a href="/drug-info-chat" class="nav-link active">Drug Info Chat</a>
+                <button onclick="confirmLogout()" class="nav-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>🤖 Drug Information Assistant</h1>
+                <p>Ask me about any medication in your preferred language</p>
+                
+                <div class="language-selector">
+                    <label for="languageSelect">Language / भाषा / மொழி:</label>
+                    <select id="languageSelect" onchange="changeLanguage()">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी (Hindi)</option>
+                        <option value="ta">தமிழ் (Tamil)</option>
+                        <option value="te">తెలుగు (Telugu)</option>
+                        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                        <option value="ml">മലയാളം (Malayalam)</option>
+                        <option value="gu">ગુજરાતી (Gujarati)</option>
+                        <option value="bn">বাংলা (Bengali)</option>
+                        <option value="mr">मराठी (Marathi)</option>
+                        <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                        <option value="ur">اردو (Urdu)</option>
+                        <option value="es">Español (Spanish)</option>
+                        <option value="fr">Français (French)</option>
+                        <option value="de">Deutsch (German)</option>
+                        <option value="zh">中文 (Chinese)</option>
+                        <option value="ar">العربية (Arabic)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
+                <div class="message bot">
+                    <div class="message-avatar" aria-hidden="true">🤖</div>
+                    <div class="message-content">
+                        <span id="welcomeMessage">Hi! I'm your drug information assistant. Enter any generic drug name and I'll provide you with detailed information including what it's used for, dosage, side effects, and more. You can type your question or use the microphone button to speak.</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator" aria-hidden="true">
+                <div class="message-avatar">🤖</div>
+                <span>Assistant is typing</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="drugInput" 
+                        placeholder="Enter a drug name or click the mic to speak..."
+                        maxlength="200"
+                        aria-label="Drug name input"
+                        autocomplete="off"
+                    >
+                    <button 
+                        class="mic-button" 
+                        id="micButton" 
+                        onclick="toggleVoiceInput()"
+                        title="Voice input"
+                        aria-label="Start voice input"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                    </button>
+                    <div class="voice-status" id="voiceStatus"></div>
+                </div>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="Send message">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden logout form -->
+    <form id="logoutForm" action="/logout" method="POST" style="display: none;"></form>
+
+    <script src="{{ url_for('static', filename='js/ehr.js') }}"></script>
+    <script>
+        // Global variables
+        const chatMessages = document.getElementById('chatMessages');
+        const drugInput = document.getElementById('drugInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const micButton = document.getElementById('micButton');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const languageSelect = document.getElementById('languageSelect');
+        
+        let isRecording = false;
+        let recognition = null;
+        let currentLanguage = 'en';
+        
+        // Initialize speech recognition
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+                
+                recognition.onstart = function() {
+                    isRecording = true;
+                    micButton.classList.add('listening');
+                    showVoiceStatus('Listening...');
+                    micButton.setAttribute('aria-label', 'Stop voice input');
+                };
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    drugInput.value = transcript;
+                    hideVoiceStatus();
+                    drugInput.focus();
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    hideVoiceStatus();
+                    
+                    let errorMessage = 'Voice input error. ';
+                    switch(event.error) {
+                        case 'no-speech':
+                            errorMessage += 'No speech detected. Please try again.';
+                            break;
+                        case 'audio-capture':
+                            errorMessage += 'Microphone not accessible. Please check permissions.';
+                            break;
+                        case 'not-allowed':
+                            errorMessage += 'Microphone permission denied. Please allow microphone access.';
+                            break;
+                        default:
+                            errorMessage += 'Please try typing instead.';
+                    }
+                    
+                    showMessage(errorMessage, 'error');
+                };
+                
+                recognition.onend = function() {
+                    isRecording = false;
+                    micButton.classList.remove('listening');
+                    hideVoiceStatus();
+                    micButton.setAttribute('aria-label', 'Start voice input');
+                };
+            } else {
+                console.log('Speech recognition not supported');
+                micButton.style.display = 'none';
+            }
+        }
+        
+        // Language management
+        const translations = {
+            en: {
+                welcome: "Hi! I'm your drug information assistant. Enter any generic drug name and I'll provide you with detailed information including what it's used for, dosage, side effects, and more. You can type your question or use the microphone button to speak.",
+                placeholder: "Enter a drug name or click the mic to speak...",
+                listening: "Listening...",
+                processing: "Processing...",
+                translating: "Translating..."
+            },
+            hi: {
+                welcome: "नमस्ते! मैं आपका दवा सूचना सहायक हूं। कोई भी जेनेरिक दवा का नाम डालें और मैं आपको इसकी विस्तृत जानकारी प्रदान करूंगा। आप अपना प्रश्न टाइप कर सकते हैं या माइक्रोफोन बटन का उपयोग करके बोल सकते हैं।",
+                placeholder: "दवा का नाम दर्ज करें या बोलने के लिए माइक पर क्लिक करें...",
+                listening: "सुन रहा हूं...",
+                processing: "प्रक्रिया कर रहा हूं...",
+                translating: "अनुवाद कर रहा हूं..."
+            },
+            ta: {
+                welcome: "வணக்கம்! நான் உங்கள் மருந்து தகவல் உதவியாளர். எந்த மருந்தின் பொதுவான பெயரையும் உள்ளிடுங்கள், அதன் விரிவான தகவல்களை நான் வழங்குவேன். நீங்கள் உங்கள் கேள்வியை தட்டச்சு செய்யலாம் அல்லது மைக்ரோஃபோன் பொத்தானைப் பயன்படுத்தி பேசலாம்.",
+                placeholder: "மருந்தின் பெயரை உள்ளிடுங்கள் அல்லது பேச மைக்கை கிளிக் செய்யுங்கள்...",
+                listening: "கேட்கிறேன்...",
+                processing: "செயல்படுத்துகிறேன்...",
+                translating: "மொழிபெயர்க்கிறேன்..."
+            }
+        };
+        
+        function changeLanguage() {
+            currentLanguage = languageSelect.value;
+            updateLanguageTexts();
+            
+            // Update speech recognition language
+            if (recognition) {
+                const languageMap = {
+                    'en': 'en-US',
+                    'hi': 'hi-IN',
+                    'ta': 'ta-IN',
+                    'te': 'te-IN',
+                    'kn': 'kn-IN',
+                    'ml': 'ml-IN',
+                    'gu': 'gu-IN',
+                    'bn': 'bn-IN',
+                    'mr': 'mr-IN',
+                    'pa': 'pa-IN',
+                    'ur': 'ur-IN',
+                    'es': 'es-ES',
+                    'fr': 'fr-FR',
+                    'de': 'de-DE',
+                    'zh': 'zh-CN',
+                    'ar': 'ar-SA'
+                };
+                recognition.lang = languageMap[currentLanguage] || 'en-US';
+            }
+        }
+        
+        function updateLanguageTexts() {
+            const texts = translations[currentLanguage] || translations.en;
+            
+            document.getElementById('welcomeMessage').textContent = texts.welcome;
+            drugInput.placeholder = texts.placeholder;
+        }
+        
+        // Voice input functions
+        function toggleVoiceInput() {
+            if (!recognition) {
+                showMessage('Voice input is not supported in your browser.', 'error');
+                return;
+            }
+            
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('Error starting speech recognition:', error);
+                    showMessage('Unable to start voice input. Please try again.', 'error');
+                }
+            }
+        }
+        
+        function showVoiceStatus(message) {
+            voiceStatus.textContent = message;
+            voiceStatus.classList.add('show');
+        }
+        
+        function hideVoiceStatus() {
+            voiceStatus.classList.remove('show');
+        }
+        
+        // Message functions
+        function addMessage(content, sender, isTranslated = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = sender === 'bot' ? '🤖' : '👤';
+            avatar.setAttribute('aria-hidden', 'true');
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            if (isTranslated) {
+                messageContent.style.fontStyle = 'italic';
+                messageContent.style.opacity = '0.9';
+            }
+            
+            if (sender === 'user') {
+                messageDiv.appendChild(messageContent);
+                messageDiv.appendChild(avatar);
+            } else {
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function addDrugInfoMessage(drugInfo, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = '🤖';
+            avatar.setAttribute('aria-hidden', 'true');
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            if (message) {
+                const messageText = document.createElement('p');
+                messageText.textContent = message;
+                messageText.style.marginBottom = '15px';
+                messageContent.appendChild(messageText);
+            }
+            
+            const drugCard = document.createElement('div');
+            drugCard.className = 'drug-info-card';
+            drugCard.setAttribute('role', 'article');
+            drugCard.setAttribute('aria-label', `Drug information for ${drugInfo.generic_name || 'Unknown Drug'}`);
+            
+            function getDisplayText(text, maxLength = 500) {
+                if (!text || text === 'N/A' || text === 'No information available') {
+                    return 'Not available';
+                }
+                if (text.length > maxLength) {
+                    return text.substring(0, maxLength) + '...';
+                }
+                return text;
+            }
+            
+            drugCard.innerHTML = `
+                <h4>💊 ${drugInfo.generic_name || 'Unknown Drug'}</h4>
+                <div class="drug-info-item">
+                    <span class="drug-info-label">Brand Name:</span>
+                    <div class="drug-info-value">${getDisplayText(drugInfo.brand_name, 200)}</div>
+                </div>
+                <div class="drug-info-item">
+                    <span class="drug-info-label">Manufacturer:</span>
+                    <div class="drug-info-value">${getDisplayText(drugInfo.manufacturer, 200)}</div>
+                </div>
+                <div class="drug-info-item">
+                    <span class="drug-info-label">What it's used for:</span>
+                    <div class="drug-info-value">${getDisplayText(drugInfo.indications, 400)}</div>
+                </div>
+                <div class="drug-info-item">
+                    <span class="drug-info-label">Dosage Information:</span>
+                    <div class="drug-info-value">${getDisplayText(drugInfo.dosage, 400)}</div>
+                </div>
+                <div class="drug-info-item">
+                    <span class="drug-info-label">Warnings:</span>
+                    <div class="drug-info-value">${getDisplayText(drugInfo.warnings, 300)}</div>
+                </div>
+                <div class="drug-info-item">
+                    <span class="drug-info-label">Side Effects:</span>
+                    <div class="drug-info-value">${getDisplayText(drugInfo.side_effects, 300)}</div>
+                </div>
+            `;
+            
+            messageContent.appendChild(drugCard);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.textContent = message;
+            messageDiv.setAttribute('role', 'alert');
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'flex';
+            scrollToBottom();
+        }
+        
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+        
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Main send message function
+        async function sendMessage() {
+            const drugName = drugInput.value.trim();
+            if (!drugName) return;
+            
+            // Add user message
+            addMessage(drugName, 'user');
+            
+            // Clear input and disable controls
+            drugInput.value = '';
+            sendBtn.disabled = true;
+            drugInput.disabled = true;
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                // Send request to backend with language info
+                const response = await fetch('/get-drug-info', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        drug_name: drugName,
+                        language: currentLanguage 
+                    })
+                });
+                
+                const data = await response.json();
+                hideTypingIndicator();
+                
+                if (data.success && data.drug_info) {
+                    addDrugInfoMessage(data.drug_info, data.message);
+                } else {
+                    addMessage(data.message || 'Sorry, I could not find information about that drug.', 'bot');
+                }
+                
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Sorry, I encountered an error while searching for drug information. Please try again.', 'bot');
+                console.error('Error:', error);
+            } finally {
+                // Re-enable controls
+                sendBtn.disabled = false;
+                drugInput.disabled = false;
+                drugInput.focus();
+            }
+        }
+        
+        // Event listeners
+        drugInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Initialize everything when page loads
+        window.addEventListener('load', () => {
+            initializeSpeechRecognition();
+            updateLanguageTexts();
+            drugInput.focus();
+        });
+        
+        // Handle browser compatibility
+        if (!window.fetch) {
+            showMessage('Your browser does not support some features. Please update your browser.', 'error');
+        }
+        
+        // Keyboard accessibility
+        micButton.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleVoiceInput();
+            }
+        });
+        
+        // Handle page visibility changes (stop recording when tab becomes hidden)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isRecording) {
+                recognition.stop();
+            }
+        });
+    </script>
+</body>
+</html>

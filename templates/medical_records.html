@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAssist - Medical Records</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ehr.css') }}">
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>MedAssist</span>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/health-records" class="nav-link">Health Records</a>
+                <a href="/medical-records" class="nav-link active">Medical Records</a>
+                <button onclick="confirmLogout()" class="nav-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1>Medical Records</h1>
+            <button class="add-btn" onclick="toggleAddForm()">Add New Record</button>
+        </div>
+
+        <!-- Add Record Form -->
+        <div id="addRecordForm" class="form-section" style="display: none;">
+            <h2>Add Medical Record</h2>
+            <form action="/add-medical-record" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="record_type">Record Type</label>
+                        <select id="record_type" name="record_type" required>
+                            <option value="">Select Type</option>
+                            <option value="diagnosis">Diagnosis</option>
+                            <option value="treatment">Treatment</option>
+                            <option value="surgery">Surgery</option>
+                            <option value="consultation">Consultation</option>
+                            <option value="test">Test/Examination</option>
+                            <option value="immunization">Immunization</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date_recorded">Date</label>
+                        <input type="date" id="date_recorded" name="date_recorded" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" required placeholder="Brief title for this record">
+                </div>
+
+                <div class="form-group">
+                    <label for="healthcare_provider">Healthcare Provider</label>
+                    <input type="text" id="healthcare_provider" name="healthcare_provider" placeholder="Doctor/Hospital name">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" placeholder="Detailed description of the medical record..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Save Record</button>
+                    <button type="button" class="cancel-btn" onclick="toggleAddForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Records List -->
+        <div class="records-section">
+            {% if records %}
+                <div class="records-grid">
+                    {% for record in records %}
+                    <div class="record-card">
+                        <div class="record-header">
+                            <div class="record-type">{{ record[1].title() }}</div>
+                            <div class="record-date">{{ record[4] }}</div>
+                        </div>
+                        <h3>{{ record[2] }}</h3>
+                        {% if record[3] %}
+                        <p class="record-description">{{ record[3][:150] }}{% if record[3]|length > 150 %}...{% endif %}</p>
+                        {% endif %}
+                        {% if record[5] %}
+                        <div class="record-provider">Provider: {{ record[5] }}</div>
+                        {% endif %}
+                        <div class="record-footer">
+                            <span class="record-created">Added: {{ record[6].strftime('%b %d, %Y') }}</span>
+                            <div class="record-actions">
+                                <button class="action-btn edit-btn">Edit</button>
+                                <button class="action-btn delete-btn" onclick="confirmDelete('{{ record[0] }}')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <h3>No Medical Records Yet</h3>
+                    <p>Start building your medical history by adding your first record.</p>
+                    <button class="add-btn" onclick="toggleAddForm()">Add Your First Record</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Hidden logout form -->
+    <form id="logoutForm" action="/logout" method="POST" style="display: none;"></form>
+
+    <script src="{{ url_for('static', filename='js/ehr.js') }}"></script>
+</body>
+</html>

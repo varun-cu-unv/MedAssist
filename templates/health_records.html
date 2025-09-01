@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAssist - Health Records</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ehr.css') }}">
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>MedAssist</span>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/health-records" class="nav-link active">Health Records</a>
+                <a href="/appointment" class="nav-link">Appointments</a>
+                <button onclick="confirmLogout()" class="nav-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="ehr-container">
+        <div class="header-section">
+            <h1>Electronic Health Records</h1>
+            <p>Manage your complete health information in one secure place</p>
+        </div>
+
+        <div class="ehr-grid">
+            <!-- Medical Records Card -->
+            <div class="ehr-card" onclick="location.href='/medical-records'">
+                <div class="ehr-icon">📋</div>
+                <h3>Medical Records</h3>
+                <p>View and manage your medical history, diagnoses, and treatment records</p>
+                <div class="card-action">View Records</div>
+            </div>
+
+            <!-- Medications Card -->
+            <div class="ehr-card" onclick="location.href='/medications'">
+                <div class="ehr-icon">💊</div>
+                <h3>Medications</h3>
+                <p>Track your current medications, dosages, and prescription history</p>
+                <div class="card-action">Manage Medications</div>
+            </div>
+
+            <!-- Drug Info Chat Card -->
+            <div class="ehr-card" onclick="location.href='/drug-info-chat'">
+                <div class="ehr-icon">🤖</div>
+                <h3>Drug Info Chat</h3>
+                <p>Ask our AI assistant about any medication and get detailed information instantly</p>
+                <div class="card-action">Start Chat</div>
+            </div>
+
+            <!-- Lab Results Card -->
+            <div class="ehr-card" onclick="location.href='/lab-results'">
+                <div class="ehr-icon">🧪</div>
+                <h3>Lab Results</h3>
+                <p>Access your laboratory test results and reports</p>
+                <div class="card-action">View Results</div>
+            </div>
+
+            <!-- Emergency Contacts Card -->
+            <div class="ehr-card" onclick="location.href='/emergency-contacts'">
+                <div class="ehr-icon">🚨</div>
+                <h3>Emergency Contacts</h3>
+                <p>Manage your emergency contact information</p>
+                <div class="card-action">Update Contacts</div>
+            </div>
+
+            <!-- Health Summary Card -->
+            <div class="ehr-card">
+                <div class="ehr-icon">📄</div>
+                <h3>Health Summary</h3>
+                <p>Generate comprehensive health reports and summaries</p>
+                <div class="card-action">Generate Report</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden logout form -->
+    <form id="logoutForm" action="/logout" method="POST" style="display: none;"></form>
+
+    <script src="{{ url_for('static', filename='js/ehr.js') }}"></script>
+</body>
+</html>

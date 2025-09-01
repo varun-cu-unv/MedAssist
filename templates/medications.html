@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAssist - Medications</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ehr.css') }}">
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>MedAssist</span>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/health-records" class="nav-link">Health Records</a>
+                <a href="/medications" class="nav-link active">Medications</a>
+                <button onclick="confirmLogout()" class="nav-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1>Medications</h1>
+            <button class="add-btn" onclick="toggleAddForm()">Add New Medication</button>
+        </div>
+
+        <!-- Add Medication Form -->
+        <div id="addMedicationForm" class="form-section" style="display: none;">
+            <h2>Add Medication</h2>
+            <form action="/add-medication" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="medication_name">Medication Name</label>
+                        <input type="text" id="medication_name" name="medication_name" required placeholder="Enter medication name">
+                    </div>
+                    <div class="form-group">
+                        <label for="dosage">Dosage</label>
+                        <input type="text" id="dosage" name="dosage" required placeholder="e.g., 500mg, 1 tablet">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="frequency">Frequency</label>
+                        <select id="frequency" name="frequency" required>
+                            <option value="">Select Frequency</option>
+                            <option value="Once daily">Once daily</option>
+                            <option value="Twice daily">Twice daily</option>
+                            <option value="Three times daily">Three times daily</option>
+                            <option value="Four times daily">Four times daily</option>
+                            <option value="Every other day">Every other day</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="As needed">As needed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" id="start_date" name="start_date" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="end_date">End Date (Optional)</label>
+                        <input type="date" id="end_date" name="end_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="prescribing_doctor">Prescribing Doctor</label>
+                        <input type="text" id="prescribing_doctor" name="prescribing_doctor" placeholder="Doctor's name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Additional notes about this medication..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Save Medication</button>
+                    <button type="button" class="cancel-btn" onclick="toggleAddMedicationForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Medications List -->
+        <div class="records-section">
+            {% if medications %}
+                <div class="records-grid">
+                    {% for medication in medications %}
+                    <div class="record-card">
+                        <div class="record-header">
+                            <div class="record-type">💊 Medication</div>
+                            <div class="record-status {% if medication[7] %}active{% else %}inactive{% endif %}">
+                                {% if medication[7] %}Active{% else %}Inactive{% endif %}
+                            </div>
+                        </div>
+                        <h3>{{ medication[1] }}</h3>
+                        <div class="medication-details">
+                            <p><strong>Dosage:</strong> {{ medication[2] or 'Not specified' }}</p>
+                            <p><strong>Frequency:</strong> {{ medication[3] or 'Not specified' }}</p>
+                            {% if medication[4] %}
+                            <p><strong>Start Date:</strong> {{ medication[4] }}</p>
+                            {% endif %}
+                            {% if medication[5] %}
+                            <p><strong>End Date:</strong> {{ medication[5] }}</p>
+                            {% endif %}
+                            {% if medication[6] %}
+                            <p><strong>Prescribed by:</strong> {{ medication[6] }}</p>
+                            {% endif %}
+                            {% if medication[8] %}
+                            <p><strong>Notes:</strong> {{ medication[8] }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="record-footer">
+                            <div class="record-actions">
+                                <button class="action-btn edit-btn">Edit</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">💊</div>
+                    <h3>No Medications Yet</h3>
+                    <p>Start tracking your medications by adding your first one.</p>
+                    <button class="add-btn" onclick="toggleAddMedicationForm()">Add Your First Medication</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Hidden logout form -->
+    <form id="logoutForm" action="/logout" method="POST" style="display: none;"></form>
+
+    <script src="{{ url_for('static', filename='js/ehr.js') }}"></script>
+    <script>
+        function toggleAddMedicationForm() {
+            const form = document.getElementById('addMedicationForm');
+            if (form) {
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                
+                // Set today's date as default for start date
+                if (form.style.display === 'block') {
+                    const startDateInput = document.getElementById('start_date');
+                    if (startDateInput && !startDateInput.value) {
+                        startDateInput.value = new Date().toISOString().split('T')[0];
+                    }
+                }
+            }
+        }
+        
+        // Make function globally available
+        window.toggleAddMedicationForm = toggleAddMedicationForm;
+    </script>
+</body>
+</html>

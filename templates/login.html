@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAssist - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    
+    <div class="main-container">
+        <!-- Left Section - Welcome Message -->
+        <div class="left-section">
+            <div class="brand-section">
+                <div class="main-logo">
+                    <div class="main-logo-icon"></div>
+                </div>
+                <div class="main-tagline typing-animation" id="mainTagline"></div>
+            </div>
+            
+            <div class="description">
+                <p id="description1"></p>
+                <br>
+                <p id="feature1"></p>
+                <p id="feature2"></p>
+                <p id="feature3"></p>
+            </div>
+        </div>
+        
+        <!-- Right Section - Login Form -->
+        <div class="right-section">
+            <div class="container">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <h2>Welcome Back</h2>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="showForm('signin')">Sign In</button>
+                    <button class="tab" onclick="showForm('signup')">Sign Up</button>
+                </div>
+                
+                <div class="form-container">
+                    <div class="error-message" id="errorMessage"></div>
+                    <div class="success-message" id="successMessage"></div>
+                    
+                    <!-- Sign In Form -->
+                    <form class="form active" id="signinForm" action="/login" method="POST">
+                        <div class="form-group">
+                            <label for="signin-username">Username</label>
+                            <input type="text" id="signin-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password">Password</label>
+                            <input type="password" id="signin-password" name="password" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Sign In</button>
+                    </form>
+                    
+                    <!-- Sign Up Form -->
+                    <form class="form" id="signupForm" action="/signup" method="POST">
+                        <div class="form-group">
+                            <label for="signup-username">Username</label>
+                            <input type="text" id="signup-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email">Email</label>
+                            <input type="email" id="signup-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" name="password" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
