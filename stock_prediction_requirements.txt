@@ -1,0 +1,22 @@
+# Stock Price Prediction Requirements
+# Add these packages to your environment for stock prediction functionality
+
+# Data manipulation and analysis
+pandas>=1.3.0
+numpy>=1.21.0
+
+# Data fetching
+yfinance>=0.1.87
+
+# Machine Learning and Deep Learning
+scikit-learn>=1.0.0
+tensorflow>=2.8.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.0.0
+
+# Jupyter notebook (if running in Jupyter environment)
+jupyter>=1.0.0
+ipython>=7.0.0
